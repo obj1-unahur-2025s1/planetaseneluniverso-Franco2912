@@ -1,9 +1,73 @@
-import example.pepita
+import universo.*
 
-describe "group of tests for pepita" {
+describe "Pruebas1"{
+  const franco = new Persona(edad=20)
+  const santi  = new Persona(edad=19)
+  const morten = new Persona(edad=65)
+  const marti  = new Persona(edad=10)
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  const muralla1 = new Muralla(longitud=10)
+  const muralla2 = new Muralla(longitud=5)
+
+  const museo1   = new Museo(superficie=100, indiceImportancia=3)
+  
+  const tierra = new Planeta(habitantes=#{franco, santi, morten, marti}, construciones=#{muralla1, muralla2, museo1})
+
+  const marte = new Planeta(habitantes=#{franco, santi}, construciones=#{muralla2})
+  test "la delegación diplomática está formada por tres de ellas"{
+    assert.equals(3, tierra.delegacionDiplomatica().size())
   }
 
+  test "La tierra es valiosa"{
+    assert.that(tierra.siEsValioso())
+  }
+
+  test "Marte no es valioso"{
+    assert.notThat(marte.siEsValioso())
+  }
+
+}
+
+describe "Más pruebas" {
+  // Constructores en distintas regiones
+  const consMontaña = new Constructor(edad=30, region="montaña", cantConstrucciones=6, inteligencia=3)
+  const consCosta   = new Constructor(edad=40, region="costa", cantConstrucciones=2, inteligencia=2)
+  const consLlanura = new Constructor(edad=50, region="llanura", cantConstrucciones=3, inteligencia=4)
+  const consCiudad  = new Constructor(edad=35, region="ciudad", cantConstrucciones=1, inteligencia=8)
+  const prod        = new Productor(edad=25, planetaDondeVive="venus")
+  
+  const venus = new Planeta(habitantes=#{consMontaña, consCosta, consLlanura, consCiudad, prod})
+
+  method initialize(){
+    prod.aprenderTecnica("siembra")
+    prod.aprenderTecnica("riego")
+  }
+
+  test "Constructores y productor trabajan bien" {
+    consMontaña.trabajarEnPlaneta(10, venus)
+    consCosta.trabajarEnPlaneta(8, venus)
+    consLlanura.trabajarEnPlaneta(12, venus)
+    consCiudad.trabajarEnPlaneta(6, venus)
+    prod.trabajarEnPlaneta(5, venus)
+    assert.equals(4, venus.construciones().size())
+  }
+
+  test "Algunos integran la delegación diplomática" {
+    assert.that(venus.delegacionDiplomatica().contains(consMontaña)) // destacado por construcciones
+    assert.that(venus.delegacionDiplomatica().contains(prod)) // destacado por técnicas o recursos
+  }
+
+  // Historia del planeta
+  test "Delegación diplomática trabaja en su planeta" {
+    const cantidadAntes = venus.construciones().size()
+    venus.delegacionDiplomatica().forEach({ h => h.trabajarEnPlaneta(4, venus)})
+    assert.that(venus.construciones().size() > cantidadAntes)
+  }
+
+  // Invasión de planeta
+  const jupiter = new Planeta(habitantes=#{}, construciones=#{})
+  test "Planeta invade a otro y su delegación trabaja para el invasor" {
+    venus.delegacionDiplomatica().forEach({ h => h.trabajarEnPlaneta(3, jupiter) })
+    assert.that(jupiter.construciones().size() > 0)
+  }
 }
